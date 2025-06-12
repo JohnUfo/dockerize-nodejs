@@ -2,7 +2,7 @@ name: Deploy Node.js Dockerized Service
 
 on:
   push:
-    branches: [ main ]  # deploy only when main is pushed
+    branches: [ main ]
 
 jobs:
   deploy:
@@ -13,7 +13,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup SSH
+      - name: Setup SSH agent
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -24,6 +24,13 @@ jobs:
 
           rsync -avz --exclude '.git' --exclude 'node_modules' --exclude '.github' ./ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/nodejs-docker-service/
 
+      - name: Create .env file on EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << EOF
+            echo "SECRET_MESSAGE=${{ secrets.ENV_SECRET_MESSAGE }}" > /opt/nodejs-docker-service/.env
+            echo "USERNAME=${{ secrets.ENV_USERNAME }}" >> /opt/nodejs-docker-service/.env
+            echo "PASSWORD=${{ secrets.ENV_PASSWORD }}" >> /opt/nodejs-docker-service/.env
+          EOF
 
       - name: Build and Run Docker container on EC2
         run: |
@@ -34,4 +41,3 @@ jobs:
             docker rm nodejs-docker-service || true
             docker run -d --env-file .env -p 80:3000 --name nodejs-docker-service nodejs-docker-service
           EOF
-
