@@ -20,9 +20,10 @@ jobs:
 
       - name: Copy files to EC2
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} 'mkdir -p /opt/nodejs-docker-service'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} 'sudo mkdir -p /opt/nodejs-docker-service && sudo chown -R ubuntu:ubuntu /opt/nodejs-docker-service'
 
           rsync -avz --exclude '.git' --exclude 'node_modules' --exclude '.github' ./ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/nodejs-docker-service/
+
 
       - name: Build and Run Docker container on EC2
         run: |
