@@ -13,7 +13,7 @@ This project demonstrates how to Dockerize a simple Node.js service and deploy i
 
 ```bash
 git clone https://github.com/JohnUfo/dockerize-nodejs.git
-cd your-repo-name
+cd dockerize-nodejs
 npm install
 
 node index.js
